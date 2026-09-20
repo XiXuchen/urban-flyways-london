@@ -2,7 +2,7 @@
 
 ### A Spatiotemporal Analysis of Migratory Bird Distribution, Urban Habitat Conditions and Ecological Attention Zones
 
-🔗 **Live Website:** [View the interactive website](https://xixuchen.github.io/urban-flyways-london/)
+🔗 **Live Website:** https://hhyoloo.github.io/CASA0029-group-project/
 
 📍 **Module:** CASA0029 Data Visualisation, UCL
 👥 **Project:** Group 5
