@@ -3,16 +3,11 @@
 ### A Spatiotemporal Analysis of Migratory Bird Distribution, Urban Habitat Conditions and Ecological Attention Zones
 
 🔗 **Live Website:** https://hhyoloo.github.io/CASA0029-group-project/
-
-📍 **Module:** CASA0029 Data Visualisation, UCL
-👥 **Project:** Group 5
-🧩 **Project Type:** Collaborative Group Project
-
 ---
 
 ## My Contribution
 
-As a member of Group 5, my main contributions focused on the development of the **Bird Habitat Pressure (BHP) framework**, the **Attention Zones interface**, **Interactive Visualisation 3 — Habitat Comparison Tool**, and the **3D interactive visualisation** within the Attention Zones section.
+My main contributions focused on the development of the **Bird Habitat Pressure (BHP) framework**, the **Attention Zones interface**, **Interactive Visualisation 3 — Habitat Comparison Tool**, and the **3D interactive visualisation** within the Attention Zones section.
 
 ### Key Contributions
 
