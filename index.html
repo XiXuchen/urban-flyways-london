@@ -1,0 +1,466 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Urban Flyways in London</title>
+  <link rel="icon" href="data:," />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.css" rel="stylesheet" />
+  <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.js"></script>
+  <link rel="stylesheet" href="style.css?v=site-v18" />
+
+  <style>
+    #home.landing-hero {
+      position: relative !important;
+      overflow: hidden !important;
+      background: transparent !important;
+    }
+
+    #home .hero-bg-map {
+      display: block !important;
+      position: absolute !important;
+      inset: 0 !important;
+      z-index: 0 !important;
+      opacity: 1 !important;
+      pointer-events: none !important;
+      overflow: hidden !important;
+    }
+
+    #heroBgMap {
+      position: absolute !important;
+      inset: -80px !important;
+      width: calc(100% + 160px) !important;
+      height: calc(100% + 160px) !important;
+      min-height: 100vh !important;
+      filter: saturate(1.18) contrast(1.12) brightness(1.06) !important;
+      transform: scale(1.08) !important;
+    }
+
+    #home .hero-bg-map::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 500;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 75% 50%, rgba(255,253,246,.20), rgba(255,253,246,.72) 52%, rgba(255,253,246,.88) 100%),
+        linear-gradient(
+          90deg,
+          rgba(255,253,246,.90) 0%,
+          rgba(255,253,246,.72) 38%,
+          rgba(255,253,246,.38) 70%,
+          rgba(255,253,246,.62) 100%
+        );
+    }
+
+    #home > *:not(.hero-bg-map) {
+      position: relative !important;
+      z-index: 5 !important;
+    }
+
+    .habitat-section .dashboard {
+      min-height: 860px !important;
+      height: auto !important;
+      max-height: none !important;
+    }
+
+    .habitat-section .map-card,
+    .habitat-section #map {
+      min-height: 860px !important;
+    }
+
+    .habitat-section .legend-card {
+      left: 22px !important;
+      right: auto !important;
+      bottom: 158px !important;
+      width: 225px !important;
+      max-height: 238px !important;
+      overflow-y: auto !important;
+      z-index: 960 !important;
+    }
+
+    .habitat-section .story-dock {
+      left: 270px !important;
+      right: 22px !important;
+      bottom: 26px !important;
+      z-index: 930 !important;
+    }
+
+    #compare-areas .compare-interface {
+      grid-template-columns: 280px minmax(0, 1fr) !important;
+      gap: 22px !important;
+      align-items: stretch !important;
+    }
+
+    #compare-areas .select-row {
+      padding: 18px !important;
+      gap: 12px !important;
+      border-radius: 24px !important;
+    }
+
+    #compare-areas select {
+      min-height: 42px !important;
+      font-size: 13px !important;
+      border-radius: 14px !important;
+      padding: 0 12px !important;
+    }
+
+    #compareAreaChart {
+      height: 440px !important;
+      min-height: 440px !important;
+    }
+
+    .bhp-map-section {
+      align-items: stretch !important;
+      min-height: 100vh !important;
+      padding: 92px 24px 34px !important;
+      box-sizing: border-box !important;
+      overflow: hidden !important;
+    }
+
+    .bhp-map-copy,
+    .bhp-map-card,
+    .bhp-inspector {
+      height: calc(100vh - 126px) !important;
+      max-height: calc(100vh - 126px) !important;
+      min-height: 680px !important;
+      align-self: stretch !important;
+    }
+
+    .bhp-map-copy,
+    .bhp-inspector {
+      overflow-y: auto !important;
+    }
+
+    #bhpMap {
+      height: 100% !important;
+      min-height: 680px !important;
+    }
+
+    .msoa-3d-section {
+      align-items: stretch !important;
+      min-height: 100vh !important;
+      padding: 92px 24px 34px !important;
+      box-sizing: border-box !important;
+    }
+
+    .msoa-3d-copy,
+    .msoa-3d-stage-card {
+      height: calc(100vh - 126px) !important;
+      max-height: calc(100vh - 126px) !important;
+      overflow-y: auto !important;
+    }
+
+    .msoa-3d-map-card {
+      position: relative !important;
+      height: calc(100vh - 126px) !important;
+      min-height: 690px !important;
+      overflow: hidden !important;
+    }
+
+    #msoa3dMap {
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      background: #eaf0e9 !important;
+    }
+
+    .creative-member-card .contact .fa-github,
+    .creative-member-card .fa-github {
+      width: 28px !important;
+      height: 28px !important;
+      border-radius: 50% !important;
+      display: inline-grid !important;
+      place-items: center !important;
+      background: #24292f !important;
+      color: #fff !important;
+      font-size: 17px !important;
+      margin-right: 10px !important;
+      font-family: "Font Awesome 6 Brands" !important;
+      font-weight: 400 !important;
+    }
+
+    /* V17 page-local overrides: final alignment requested */
+    .habitat-section {
+      padding: 82px 18px 46px !important;
+      overflow: visible !important;
+    }
+
+    .habitat-section .dashboard {
+      min-height: 820px !important;
+      height: auto !important;
+      max-height: none !important;
+      align-items: stretch !important;
+    }
+
+    .habitat-section .map-card,
+    .habitat-section .side {
+      height: 820px !important;
+      min-height: 820px !important;
+      max-height: 820px !important;
+      align-self: stretch !important;
+    }
+
+    .habitat-section #map {
+      height: 820px !important;
+      min-height: 820px !important;
+    }
+
+    .habitat-section .story-dock {
+      left: 255px !important;
+      right: 18px !important;
+      bottom: 22px !important;
+    }
+
+    .habitat-section .legend-card {
+      bottom: 126px !important;
+    }
+
+    #compareAreaChart {
+      height: 620px !important;
+      min-height: 620px !important;
+    }
+
+    .creative-member-card .mail-logo {
+      width: 30px !important;
+      height: 30px !important;
+      border-radius: 999px !important;
+      display: inline-grid !important;
+      place-items: center !important;
+      flex: 0 0 30px !important;
+      background: #263128 !important;
+      color: #fffdf6 !important;
+      font-size: 14px !important;
+      line-height: 1 !important;
+      margin-right: 10px !important;
+    }
+
+    .creative-member-card .mail-logo::before {
+      content: "" !important;
+      width: 15px !important;
+      height: 10px !important;
+      border: 2px solid currentColor !important;
+      border-radius: 2px !important;
+      background:
+        linear-gradient(35deg, transparent 44%, currentColor 46%, currentColor 54%, transparent 56%),
+        linear-gradient(-35deg, transparent 44%, currentColor 46%, currentColor 54%, transparent 56%) !important;
+      background-position: center 1px !important;
+      background-size: 100% 100% !important;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="site-nav" aria-label="Main narrative navigation">
+    <a class="brand" href="#home"><span></span> Urban Flyways</a>
+    <div class="nav-groups">
+      <div class="nav-group"><button data-target="home">Overview</button><div class="sub-menu"><a href="#home">Home</a><a href="#why-london">Why London</a><a href="#species-selection">Species Selection</a></div></div>
+      <div class="nav-group"><button data-target="seasonal-rhythm">Flight Patterns</button><div class="sub-menu"><a href="#seasonal-rhythm">Seasonal Rhythm</a><a href="#migration-peaks">Migration Peaks</a><a href="#spatial-hotspots">Spatial Hotspots</a></div></div>
+      <div class="nav-group"><button data-target="habitat-lens">Urban Habitat</button><div class="sub-menu"><a href="#habitat-lens">Habitat Lens</a><a href="#environmental-profiles">Environmental Profiles</a><a href="#compare-areas">Compare Areas</a></div></div>
+      <div class="nav-group"><button data-target="bhp-index">Attention Zones</button><div class="sub-menu"><a href="#bhp-index">BHP Index</a><a href="#attention-areas">Attention Areas</a><a href="#planning-logic">Planning Logic</a></div></div>
+      <div class="nav-group"><button data-target="future">Future</button><div class="sub-menu"><a href="#future">Planning the Flyway</a><a href="#limitations">Limitations</a><a href="#team">Team</a></div></div>
+    </div>
+  </nav>
+
+  <button class="next-btn" id="nextBtn" aria-label="Next section">→</button>
+  <nav class="section-dots" aria-label="Section navigation"></nav>
+
+  <main>
+    <section id="home" class="story-section landing-hero">
+      <div class="hero-bg-map" aria-hidden="true">
+        <div id="heroBgMap"></div>
+      </div>
+
+      <div class="hero-copy">
+        <p class="kicker">CASA0029 Interactive Visualisation</p>
+        <h1>Urban Flyways in London</h1>
+        <p class="lead">Understanding how migratory birds move through a changing city.</p>
+        <p class="body-copy">Every year, seasonal bird movements reveal hidden ecological rhythms across London's urban landscape.</p>
+        <div class="hero-actions">
+          <a href="#why-london">Start exploration</a>
+          <a class="ghost" href="#habitat-lens">Jump to habitat map</a>
+        </div>
+      </div>
+
+      <div class="bird-collage">
+        <a class="photo-card swift" href="https://en.wikipedia.org/wiki/Common_swift" target="_blank" rel="noopener">
+          <img src="images/swift.jpg" alt="Common Swift"><span>Common Swift</span>
+        </a>
+        <a class="photo-card swallow" href="https://en.wikipedia.org/wiki/Barn_swallow" target="_blank" rel="noopener">
+          <img src="images/swallow.jpg" alt="Barn Swallow"><span>Barn Swallow</span>
+        </a>
+        <a class="photo-card martin" href="https://en.wikipedia.org/wiki/Common_house_martin" target="_blank" rel="noopener">
+          <img src="images/house-martin.jpg" alt="House Martin"><span>House Martin</span>
+        </a>
+      </div>
+    </section>
+
+    <section id="why-london" class="story-section split-section"><article class="soft-card text-card"><p class="kicker">Overview · Why London</p><h2>Why London?</h2><p>London combines dense built form, fragmented green infrastructure and major migratory pathways. This makes it a useful urban laboratory for asking where bird activity concentrates, when it peaks, and which environments support it.</p></article><div class="reason-grid"><button class="reason-card active" data-reason="river"><span>01</span><strong>River</strong><small>blue-green movement</small></button><button class="reason-card" data-reason="parks"><span>02</span><strong>Parks</strong><small>habitat concentration</small></button><button class="reason-card" data-reason="edge"><span>03</span><strong>Urban edge</strong><small>pressure gradient</small></button><div id="reasonText" class="reason-answer">Water corridors support feeding and movement, especially near the Thames, reservoirs and wetland edges.</div></div></section>
+
+    <section id="species-selection" class="story-section analysis-section"><div class="section-intro compact"><p class="kicker">Overview · Species Selection</p><h2>Which migratory birds appear most frequently?</h2><p>The selected three species represent different temporal patterns, providing a basis for further analysis.</p></div><div class="chart-and-panel"><div class="plot-card"><div id="top10Chart" class="plot"></div></div><aside class="profile-panel"><h3>Selected focal species</h3><div class="species-tabs"><button class="species-tab active" data-species="Swift">Swift</button><button class="species-tab" data-species="Swallow">Swallow</button><button class="species-tab" data-species="House Martin">House Martin</button></div><div id="speciesProfile" class="species-profile"></div></aside></div></section>
+
+    <section id="seasonal-rhythm" class="story-section analysis-section"><div class="section-intro compact"><p class="kicker">Flight Patterns · Seasonal Rhythm</p><h2>Seasonal flight patterns across the year</h2><p>Migratory birds do not appear randomly. Their records follow distinct seasonal rhythms, reflecting migration timing and ecological adaptation.</p></div><div class="chart-and-panel rhythm-layout"><div class="plot-card"><div id="monthlyChart" class="plot"></div></div><aside class="profile-panel"><h3>Reading the rhythm</h3><p id="monthlyText">Swift shows a highly concentrated pattern, appearing mainly between May and August, with a sharp peak in early summer.</p><div class="mini-months" id="monthDots"></div></aside></div></section>
+
+    <section id="migration-peaks" class="story-section split-section"><article class="soft-card text-card"><p class="kicker">Flight Patterns · Migration Peaks</p><h2>When does the city become most active?</h2><p>Use the seasonal cards to reveal how arrival, peak activity and transition periods create different observation windows.</p></article><div class="season-panel"><div class="season-buttons"><button class="peak-btn active" data-peak="spring">Spring</button><button class="peak-btn" data-peak="summer">Summer</button><button class="peak-btn" data-peak="autumn">Autumn</button></div><div id="peakText" class="season-answer"><strong>Spring emergence</strong><br>Early records begin to reappear around riverside and suburban areas.</div></div></section>
+
+    <section id="spatial-hotspots" class="story-section map-story-section"><div class="hotspot-panel"><p class="kicker">Flight Patterns · Spatial Hotspots</p><h2>Where do birds concentrate?</h2><p>Use species and season controls to explore how hotspots shift across London at MSOA level.</p><div class="choice-set" id="flightSpecies"><button data-species="Swallow" class="active">Swallow</button><button data-species="Swift">Swift</button><button data-species="House Martin">House Martin</button></div><div class="choice-set" id="flightSeason"><button data-season="Spring" class="active">Spring</button><button data-season="Summer">Summer</button><button data-season="Autumn">Autumn</button></div><div class="flight-profile"><img id="flightBirdImg" src="images/swallow.jpg" alt="Bird"><div><strong id="flightBirdName">Swallow</strong><p id="flightBirdText">A long-distance migrant often associated with open landscapes and riversides.</p></div></div><div class="ranking-card"><h3>Top 5 hotspot boroughs</h3><div id="flightBars"></div></div></div><div id="flightMap" class="flight-map"></div><div class="season-note"><h3 id="flightStoryTitle">Spring emergence</h3><p id="flightStoryText">Early hotspots emerge in suburban and riverside areas.</p></div><div class="map-legend-soft"><span>Bird count</span><i></i><div><small>Low</small><small>High</small></div></div></section>
+
+    <section id="habitat-lens" class="habitat-section">
+      <div id="cursorTrail" aria-hidden="true"></div>
+      <section class="page">
+        <aside class="rail" aria-label="Urban condition lenses">
+          <div class="rail-title" aria-hidden="true"><div class="bird-mark" role="img" aria-label="Bird logo"></div><span>Birds</span></div>
+          <button class="rail-btn active" data-mode="bird_count" title="Recorded bird activity"><i style="--dot:#d66a50"></i><span>Bird</span></button>
+          <button class="rail-btn" data-mode="green_pct" title="Measured green cover"><i style="--dot:#3f8f68"></i><span>Green</span></button>
+          <button class="rail-btn" data-mode="water_pct" title="Measured water cover"><i style="--dot:#68b7c8"></i><span>Blue</span></button>
+          <button class="rail-btn" data-mode="building_density" title="Measured building density"><i style="--dot:#c18b70"></i><span>Built</span></button>
+        </aside>
+
+        <main class="content">
+          <header class="hero">
+            <div><p class="eyebrow">Interactive Module 2 | Urban Conditions</p><h1>London bird hotspots and their shared urban habitats</h1></div>
+            <p class="subtitle">Do high-record bird observation areas tend to sit near parks, water corridors, or dense urban settings? Use the map first: filter hotspots, follow the short story route, then compare two MSOAs.</p>
+            <div class="period-badge"><span>Data period</span><strong>2021-2025 cumulative records</strong></div>
+          </header>
+
+          <section class="kpis" aria-label="Headline metrics">
+            <div class="kpi"><span>Bird records</span><strong id="kpi-total">--</strong></div>
+            <div class="kpi"><span>Hotspot MSOAs</span><strong id="kpi-major">--</strong></div>
+            <div class="kpi wide"><span>Shared hotspot signature</span><strong id="kpi-signature">--</strong></div>
+            <div class="kpi"><span>Top borough</span><strong id="kpi-borough">--</strong></div>
+          </section>
+
+          <section class="dashboard">
+            <section class="map-card">
+              <div class="map-header">
+                <div class="map-copy"><p class="eyebrow">Bird Hotspot Habitat Map</p><h2 id="map-title">Recorded activity hotspots</h2><p id="map-description">Filter, compare, and inspect cumulative 2021-2025 bird records by MSOA.</p></div>
+                <div class="map-actions" aria-label="Map tools"><button id="allBtn" class="tool-btn active">All areas</button><button id="hotspotBtn" class="tool-btn">Hotspots only</button><button id="compareBtn" class="tool-btn">Compare 2</button><button id="flyBtn" class="tool-btn">Top area</button></div>
+              </div>
+
+              <div class="filters">
+                <label>Borough<select id="boroughSelect"><option value="all">All boroughs</option></select></label>
+                <label>Hotspot threshold: <strong id="thresholdValue">300+</strong><input id="thresholdSlider" type="range" min="20" max="800" step="20" value="300"></label>
+              </div>
+
+              <div class="quick-actions" aria-label="Quick map interactions"><button id="resetViewBtn" type="button">Reset view</button><button id="randomHotspotBtn" type="button">Surprise hotspot</button></div>
+
+              <div class="story-dock" aria-label="Guided hotspot story">
+                <button class="story-btn active" data-story="overview"><span>01</span>Start with the pattern</button>
+                <button class="story-btn" data-story="edge"><span>02</span>Green-edge giants</button>
+                <button class="story-btn" data-story="blue"><span>03</span>River and reservoir pull</button>
+                <button class="story-btn" data-story="inner"><span>04</span>Inner-city exceptions</button>
+              </div>
+
+              <div id="hoverCard" class="hover-card"><span>Hover an MSOA</span><strong>Urban fingerprint appears here</strong></div>
+              <div id="map"></div>
+              <div id="mapStatus" class="map-status">Loading MSOA polygons...</div>
+              <div class="legend-card"><h3 id="legend-title">Bird activity</h3><div id="legend"></div></div>
+            </section>
+
+            <aside class="side">
+              <div class="panel answer-panel"><p class="eyebrow">Answer</p><h2 id="answer-title">Hotspots lean toward accessible blue-green edge conditions.</h2><p id="answer-text">Major hotspots are concentrated in MSOAs that sit near large parks, reservoirs, river corridors, or the outer London edge, with fewer high-count areas in the densest urban core.</p><div class="signature-bars" id="signatureBars"></div></div>
+              <div class="panel story-panel"><p class="eyebrow">Story Step</p><h2 id="story-title">The pattern</h2><p id="story-text">Begin with all MSOAs, then isolate the strongest hotspots to see which urban settings survive the filter.</p><button id="storyFocusBtn" class="story-focus">Focus this step</button></div>
+              <div class="panel selected"><p class="eyebrow">Selected Area</p><h2 id="area-name">Click an MSOA</h2><p id="area-borough">Local profile will appear here.</p><div class="stat-grid"><div><span>Bird records</span><strong id="bird-count">--</strong></div><div><span>Green cover</span><strong id="hotspot-class">--</strong></div><div><span>Water cover</span><strong id="setting-class">--</strong></div><div><span>Buildings/km²</span><strong id="setting-confidence">--</strong></div></div><p id="interpretation" class="interpretation">Select an area to inspect its observation intensity and urban setting.</p></div>
+              <div class="panel compare-panel"><h3>Compare selected areas</h3><div id="compareList" class="compare-list"><p>No areas selected. Turn on Compare 2 and click two MSOAs.</p></div><canvas id="compareChart"></canvas></div>
+              <div class="panel"><h3>Hotspot environment mix</h3><canvas id="conditionChart"></canvas></div>
+              <div class="panel"><h3>Top recorded hotspots</h3><canvas id="topChart"></canvas></div>
+            </aside>
+          </section>
+        </main>
+      </section>
+    </section>
+
+    <section id="environmental-profiles" class="story-section split-section"><article class="soft-card text-card"><p class="kicker">Urban Habitat · Environmental Profiles</p><h2>Hotspots have different urban fingerprints.</h2><p>Green cover, water proximity and building density help explain why some areas act as repeated bird observation clusters while others remain weaker.</p></article><div class="profile-cards-interactive"><button class="env-card active" data-env="green"><strong>Green-rich hotspot</strong><span>Large parks, wooded edges, stronger habitat continuity.</span></button><button class="env-card" data-env="water"><strong>Water-linked hotspot</strong><span>Reservoirs, river edges and feeding corridors.</span></button><button class="env-card" data-env="built"><strong>Built-up exception</strong><span>Urban nesting structures but higher pressure.</span></button><div id="envText" class="env-answer">Green-rich hotspots indicate where high observation counts align with stronger ecological support.</div></div></section>
+
+    <section id="compare-areas" class="story-section analysis-section"><div class="section-intro compact"><p class="kicker">Urban Habitat · Compare Areas</p><h2>Compare two urban habitat profiles</h2><p>Select two habitat profile types to compare records, green cover, water cover and built context.</p></div><div class="compare-interface"><div class="select-row"><select id="areaA"></select><select id="areaB"></select></div><div class="plot-card small"><div id="compareAreaChart" class="plot"></div></div></div></section>
+
+    <section id="bhp-index" class="story-section bhp-explain-section">
+      <article class="soft-card text-card bhp-intro-card"><p class="kicker">Attention Zones · BHP Index</p><h2>How do we translate bird records into planning attention?</h2><p>The Bird Habitat Pressure Index (BHP) is a composite interpretation layer. It balances supportive ecological conditions against urban pressure, helping identify where bird activity is already well supported and where restoration or mitigation should be prioritised.</p><p>Higher scores indicate stronger habitat potential; lower scores indicate areas where disturbance and environmental stress may reduce ecological suitability.</p></article>
+      <div class="bhp-method-card"><div class="formula-card"><span class="formula-label">Composite index</span><div class="formula bhp-formula">BHP = (w<sub>1</sub>H<sub>i</sub> + w<sub>2</sub>C<sub>i</sub>) −(w<sub>3</sub>D<sub>i</sub> + w<sub>4</sub>L<sub>i</sub>)</div><p>The formula keeps the logic transparent: habitat quality and connectivity increase BHP, while human disturbance and light pollution reduce it.</p></div><div class="variable-grid"><article><strong>H<sub>i</sub></strong><span>Habitat Quality</span><p>Represents local habitat support, including greener or more ecologically favourable conditions.</p></article><article><strong>C<sub>i</sub></strong><span>Connectivity</span><p>Captures whether the area can function as part of a wider ecological movement network.</p></article><article><strong>D<sub>i</sub></strong><span>Human Disturbance</span><p>Approximates anthropogenic load such as dense built fabric and direct urban disturbance.</p></article><article><strong>L<sub>i</sub></strong><span>Light Pollution</span><p>Represents artificial night-time light exposure that can disturb orientation, feeding and nesting behaviour.</p></article></div><div class="formula-interaction"><button class="formula-chip active" data-var="H">Hi Habitat quality</button><button class="formula-chip" data-var="C">Ci Connectivity</button><button class="formula-chip" data-var="D">Di Disturbance</button><button class="formula-chip" data-var="L">Li Light pollution</button><div id="formulaExplain" class="formula-explain"><strong>Hi increases BHP.</strong><span>Higher habitat quality means stronger local support for migratory birds.</span></div></div><div class="bhp-scale"><div><i class="scale-pressure"></i><strong>Urban Pressure Area</strong><span>low BHP</span></div><div><i class="scale-attention"></i><strong>Attention Zone</strong><span>moderate-low BHP</span></div><div><i class="scale-corridor"></i><strong>Potential Corridor</strong><span>moderate-high BHP</span></div><div><i class="scale-core"></i><strong>Stable Habitat Core</strong><span>high BHP</span></div></div></div>
+    </section>
+
+    <section id="attention-areas" class="story-section bhp-map-section">
+      <div class="bhp-map-copy"><p class="kicker">Attention Zones · Interactive Map</p><h2>Where should ecological attention be prioritised?</h2><p>This map converts the BHP score into planning categories. Click an MSOA to inspect its BHP score, bird records, ecological determinants and suggested planning action.</p><div class="attention-buttons bhp-filter-buttons"><button class="attention-btn active" data-bhp-filter="all">All Areas</button><button class="attention-btn" data-bhp-filter="Stable Habitat Core">Stable Habitat Core</button><button class="attention-btn" data-bhp-filter="Potential Corridor">Potential Corridor</button><button class="attention-btn" data-bhp-filter="Attention Zone">Attention Zone</button><button class="attention-btn" data-bhp-filter="Urban Pressure Area">Urban Pressure Area</button></div><div id="bhpSummary" class="bhp-summary-list"></div></div>
+      <div class="bhp-map-card"><div id="bhpMap"></div><div id="bhpMapStatus" class="bhp-map-status">Loading BHP areas...</div><div class="bhp-map-legend"><strong>BHP planning category</strong><div><i style="background:#9fba8e"></i><span>Stable Habitat Core</span></div><div><i style="background:#9ccfd3"></i><span>Potential Corridor</span></div><div><i style="background:#e7c978"></i><span>Attention Zone</span></div><div><i style="background:#d69a78"></i><span>Urban Pressure Area</span></div><div><i class="bird-dot"></i><span>Observed bird hotspot centroid</span></div></div></div>
+      <aside class="bhp-inspector" id="bhpInspector"><p class="kicker">Area Inspector</p><h3>Select an MSOA</h3><p>Click a polygon on the map to view BHP score, attention level and suggested planning action.</p><div class="bhp-action-card subtle"><strong>Need spatial form?</strong><p>Go to the next 3D Morphology section and click an MSOA to view a building-form interpretation.</p></div></aside>
+    </section>
+
+    <section id="msoa-3d" class="story-section msoa-3d-section">
+      <div class="msoa-3d-copy"><p class="kicker">Attention Zones · 3D Morphology</p><h2>What does a selected MSOA feel like in urban form?</h2><p>Click an MSOA polygon on the left. The model rebuilds the selected area as an urban-form profile: warm towers show disturbance and night-light pressure, while blue-green terraces show habitat quality and ecological connectivity.</p><div class="msoa-3d-stats" id="msoa3dStats"><div><span>Selected area</span><strong>Click a polygon</strong></div><div><span>BHP class</span><strong>Waiting</strong></div><div><span>Bird records</span><strong>--</strong></div></div></div>
+      <div class="msoa-3d-map-card"><div id="msoa3dMap"></div><div class="msoa-3d-map-note">Click any MSOA to update the 3D block</div></div>
+      <aside class="msoa-3d-stage-card"><div class="stage-header"><span>Selected morphology model</span><strong id="msoa3dClass">No MSOA selected</strong></div><div class="city-stage" id="cityStage" aria-label="3D building model"><div class="ground-grid"></div><div class="flyway-arc"></div><div class="block b1"></div><div class="block b2"></div><div class="block b3 green"></div><div class="block b4"></div><div class="block b5 blue"></div><div class="block b6"></div><div class="bird-dot-3d"></div></div><p id="msoa3dInterpretation">The 3D model will respond to the selected area's habitat, connectivity, disturbance and light-pressure profile.</p></aside>
+    </section>
+
+    <section id="planning-logic" class="story-section planning-deep-section"><div class="section-intro compact"><p class="kicker">Attention Zones · Planning Logic</p><h2>From observation evidence to spatial planning action</h2><p>The BHP classes are not just map colours. They translate bird records and urban conditions into different levels of intervention, from conservation to retrofit.</p></div><div class="planning-action-board"><div class="planning-tabs" role="tablist"><button class="active" data-plan="protect">Protect</button><button data-plan="connect">Connect</button><button data-plan="retrofit">Retrofit</button><button data-plan="monitor">Monitor</button></div><article id="planningExplain" class="planning-explain"><span>01 · Stable Habitat Core</span><h3>Protect existing ecological anchors</h3><p>Keep mature tree cover, reduce lighting spill, protect nesting opportunities and avoid fragmentation around the strongest BHP areas.</p></article><div class="planning-matrix"><div><strong>Evidence layer</strong><p>Bird records + habitat quality + connectivity + pressure indicators</p></div><div><strong>Planning scale</strong><p>MSOA screening first, then site-level design and policy review</p></div><div><strong>Policy link</strong><p>Supports urban greening, biodiversity net gain, blue-green infrastructure and light-sensitive design</p></div></div></div></section>
+
+    <section id="future" class="story-section future-roadmap-section"><div class="section-intro compact"><p class="kicker">Future · Planning the Flyway</p><h2>Turning the flyway into an urban design agenda</h2><p>The next step is to use the visualisation as a decision-support layer: where to protect, where to connect, and where to retrofit bird-sensitive urban space.</p></div><div class="roadmap"><button class="road-step active" data-road="network"><span>01</span><strong>Blue-green network</strong><small>rivers · reservoirs · parks</small></button><button class="road-step" data-road="buildings"><span>02</span><strong>Building-sensitive design</strong><small>nesting · renovation · facades</small></button><button class="road-step" data-road="season"><span>03</span><strong>Seasonal management</strong><small>spring · summer · autumn</small></button><button class="road-step" data-road="policy"><span>04</span><strong>Policy integration</strong><small>planning · monitoring · evidence</small></button><article id="roadExplain" class="road-explain"><h3>Blue-green network</h3><p>Use rivers, reservoirs, parks and wooded edges as a connected movement system. BHP hotspots can identify where corridor continuity should be strengthened.</p></article></div></section>
+
+    <section id="limitations" class="story-section split-section"><article class="soft-card text-card"><p class="kicker">Future · Limitations</p><h2>What this visualisation cannot claim</h2><p>Observation records are influenced by survey effort, accessibility and reporting bias. The maps should be read as exploratory evidence for spatial patterns rather than complete measures of bird abundance.</p></article><div class="note-stack"><div>Records do not equal true population size.</div><div>Urban condition indicators simplify complex habitat quality.</div><div>Further validation could combine survey effort, land cover and field observations.</div></div></section>
+
+    <section id="team" class="story-section team-section creative-team-section">
+      <div class="team-bg-orbit" aria-hidden="true"></div>
+      <div class="team-heading"><p class="kicker">Future · Team</p><h2>Our Creative Team:</h2><p>Project members responsible for spatial analysis, interaction design and website integration.</p></div>
+      <div class="creative-team-grid">
+        <article class="creative-member-card"><img src="images/yutong-xu.jpg" alt="Yutong Xu" /><h3>Yutong Xu</h3><p class="role">Co-Producer</p><p class="contact"><span class="mail-logo" aria-hidden="true"></span> xyutong9407@gmail.com</p><p class="contact"><i class="fa-brands fa-github"></i>@Hhyoloo</p></article>
+        <article class="creative-member-card"><img src="images/xiaoyi-wang.jpg" alt="Xiaoyi Wang" /><h3>Xiaoyi Wang</h3><p class="role">Co-Producer</p><p class="contact"><span class="mail-logo" aria-hidden="true"></span> wxysicily@gmail.com</p><p class="contact"><i class="fa-brands fa-github"></i>@Sicily0310</p></article>
+        <article class="creative-member-card"><img src="images/xuchen-xi.jpg" alt="Xuchen Xi" /><h3>Xuchen Xi</h3><p class="role">Co-Producer</p><p class="contact"><span class="mail-logo" aria-hidden="true"></span> ceciliaucfnxix@gmail.com</p><p class="contact"><i class="fa-brands fa-github"></i>@XiXuchen</p></article>
+      </div>
+      <footer class="team-footer">© 2026 Urban Flyways in London · CASA0029 Interactive Visualisation</footer>
+    </section>
+  </main>
+
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const el = document.getElementById("heroBgMap");
+      if (el && typeof L !== "undefined" && !el.dataset.loaded) {
+        el.dataset.loaded = "true";
+
+        const heroMap = L.map("heroBgMap", {
+          zoomControl: false,
+          attributionControl: false,
+          dragging: false,
+          scrollWheelZoom: false,
+          doubleClickZoom: false,
+          boxZoom: false,
+          keyboard: false,
+          tap: false
+        }).setView([51.5072, -0.1276], 12);
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          subdomains: "abc",
+          maxZoom: 19
+        }).addTo(heroMap);
+
+        setTimeout(() => heroMap.invalidateSize(true), 400);
+        setTimeout(() => heroMap.invalidateSize(true), 1200);
+      }
+    });
+  </script>
+
+  <script src="scripts/chart.js"></script>
+  <script src="scripts/map.js"></script>
+  <script src="scripts/ui.js?v=site-v18"></script>
+  <script src="scripts/bhp.js"></script>
+  <script src="scripts/msoa3d.js?v=site-v18"></script>
+
+  <script>
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        if (window.bhpMap) window.bhpMap.invalidateSize(true);
+        if (window.flightMap) window.flightMap.invalidateSize(true);
+        if (window.habitatMap) window.habitatMap.invalidateSize(true);
+        if (window.msoa3dRealMap && window.msoa3dRealMap.resize) window.msoa3dRealMap.resize();
+      }, 800);
+    });
+  </script>
+</body>
+</html>
